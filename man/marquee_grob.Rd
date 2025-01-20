@@ -8,6 +8,7 @@ marquee_grob(
   text,
   style = classic_style(),
   ignore_html = TRUE,
+  force_body_margin = FALSE,
   x = 0,
   y = 1,
   width = NULL,
@@ -28,12 +29,16 @@ should be rendered}
 
 \item{ignore_html}{Should HTML code be removed from the output}
 
+\item{force_body_margin}{Should the body margin override margin collapsing
+calculations. See Details.}
+
 \item{x, y}{The location of the markdown text in the graphics. If numeric it
 will be converted to units using \code{default.units}}
 
 \item{width}{The width of each markdown text. If numeric it will be converted
 to units using \code{default.units}. \code{NULL} is equivalent to the width of the
-parent container}
+parent container. \code{NA} uses the width of the text as the full width of the
+grob and will thus avoid any soft breaking of lines.}
 
 \item{default.units}{A string giving the default units to apply to \code{x}, \code{y},
 and \code{width}}
@@ -63,6 +68,18 @@ the parsed text into rich text and (possibly) images. See \code{\link[=marquee_p
 for more information about how markdown is parsed and see details below for
 further information on how rendering proceeds.
 }
+\section{Rendering}{
+marquee is first and foremost developed with the new 'glyph' rendering
+features in 4.3.0 in mind. However, not all graphics devices supports this,
+and while some might eventually do, it is quite concievable that some never
+will. Because of this, marquee has a fallback where it will render text as a
+mix of polygons and rasters (depending on the font in use) if the device
+doesn't report 'glyphs' capabilities. The upside is that it works (almost)
+everywhere, but the downside is that the fallback is much slower and with
+poorer visual quality. Because of this it is advisable to use a modern
+graphics device with glyphs support if at all possible.
+}
+
 \section{Rendering style}{
 The rendering more or less adheres to the styling provided by
 \code{\link[=marquee_parse]{marquee_parse()}}, but has some intricacies as detailed below:
@@ -89,7 +106,13 @@ bottom border size and no size for the other sides.
 \strong{Margin collapsing}
 
 Margin calculations follows the margin collapsing rules of HTML. Read more
-about these at \href{https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_model/Mastering_margin_collapsing}{mdn}
+about these at \href{https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_model/Mastering_margin_collapsing}{mdn}.
+Margin collapsing means that elements with margin set to 0 might end up with
+a margin. Specifically for the body element this can be a problem if you want
+to enforce a tight box around your text. Because of this the
+\code{force_body_margin} argument allows you to overwrite the margins
+for the body element with the original values after collapsing has been
+performed.
 
 \strong{Underline and strikethrough}
 
@@ -101,13 +124,13 @@ inherits the color of the text. No further styling is possible.
 
 Consecutive spans with the same background and border settings are merged
 into a single rectangle. The padding of the span defines the size of the
-background but will not modify the placement of glyph (i.e. having a left
-padding will not move the first glyph further away from it's left neighbor).
+background.
 
 \strong{Bullet position}
 
 Bullets are placed, right-aligned, 0.25em to the left of the first line in
-the li element.
+the li element if the text direction is ltr. For rtl text it is placed,
+left-aligned, 0.25 em to the right of the first line.
 
 \strong{Border with border radius}
 
@@ -116,11 +139,12 @@ case the border radius is ignored.
 }
 
 \section{Image rendering}{
-The image tag can be used to place images. There are support for both png and
-jpeg images. If the path instead names a grob, ggplot, or patchwork object
-then this is rendered instead. If the file cannot be read, if it doesn't
-exist, or if the path names an object that is not a grob, ggplot or patchwork,
-a placeholder is rendered in it's place (black square with red cross).
+The image tag can be used to place images. There are support for both png,
+jpeg, and svg images. If the path instead names a grob, ggplot, or patchwork
+object then this is rendered instead. If the file cannot be read, if it d
+oesn't exist, or if the path names an object that is not a grob, ggplot or
+patchwork, a placeholder is rendered in it's place (black square with red
+cross).
 
 \strong{Image sizing}
 

@@ -40,8 +40,13 @@
 #' parent hanging, [em()] in which case it is based on the font size in this
 #' style, or [rem()] in which case it is based on the font size of the body
 #' element.
-#' @param margin The margin around the element, given as a call to [trbl()]
-#' @param padding The padding around the element, given as a call to [trbl()]
+#' @param margin The margin around the element, given as a call to [trbl()].
+#' Margin refers to the area outside the box that text is placed in. If the
+#' element has a background, the margin area will not be colored.
+#' @param padding The padding around the element, given as a call to [trbl()].
+#' Padding refers to the distance between the text and the border of the box it
+#' will be drawn in. If the element has a background, the padding area will be
+#' colored.
 #' @param background The color of the background fill. The background includes
 #' the padding but not the margin. Can be a solid color or a gradient or pattern
 #' made with `grid::linearGradient()`/`grid::radialGradient()`/`grid::pattern()`
@@ -57,6 +62,13 @@
 #' @param baseline The baseline shift to apply to the text
 #' @param img_asp The default aspect ratio for block level images if not
 #' provided by the image itself
+#' @param text_direction The directional flow of the text. Either `"auto"` to
+#' let it be determined by the content of the text, or `"ltr"`/`"rtl"` to
+#' hard-code it to either left-to-right or right-to-left. This setting will not
+#' change the order of glyphs within a span of text, but rather whether
+#' consequtive blocks of text are laid out left-to-right or right-to-left. It
+#' also affects to which side indentation is applied as well as the meaning of
+#' `"auto"`, and `"justified-auto"` aligment.
 #'
 #' @return A `marquee_style` object
 #'
@@ -75,7 +87,7 @@ style <- function(family = NULL, weight = NULL, italic = NULL, width = NULL,
                   margin = NULL, padding = NULL, background = NULL, border = NULL,
                   border_size = NULL, border_radius = NULL, bullets = NULL,
                   underline = NULL, strikethrough = NULL, baseline = NULL,
-                  img_asp = NULL) {
+                  img_asp = NULL, text_direction = NULL) {
   check_string(family, allow_null = TRUE)
 
   if (is.character(weight)) weight <- systemfonts::as_font_weight(weight)
@@ -93,6 +105,7 @@ style <- function(family = NULL, weight = NULL, italic = NULL, width = NULL,
   }
 
   if (inherits(size, "marquee_em")) size <- relative(size[[1]])
+  if (is.unit(size)) size <- convertHeight(size, "bigpts", FALSE)
   if (!is_modifier(size)) check_number_decimal(size, allow_null = TRUE)
 
   check_string(color, allow_null = TRUE, allow_na = TRUE)
@@ -104,8 +117,10 @@ style <- function(family = NULL, weight = NULL, italic = NULL, width = NULL,
 
   if (!is_relative(tracking)) check_number_decimal(tracking, allow_null = TRUE)
 
+  if (is.unit(indent)) indent <- convertWidth(indent, "bigpts", FALSE)
   if (!is_modifier(indent)) check_number_decimal(indent, allow_null = TRUE)
 
+  if (is.unit(hanging)) hanging <- convertWidth(hanging, "bigpts", FALSE)
   if (!is_modifier(hanging)) check_number_decimal(hanging, allow_null = TRUE)
 
   if (is.null(margin)) margin <- trbl()
@@ -125,6 +140,7 @@ style <- function(family = NULL, weight = NULL, italic = NULL, width = NULL,
   if (is.null(border_size)) border_size <- trbl()
   if (!is_trbl(border_size)) stop_input_type(border_size, "a marquee_trbl object", allow_null = TRUE)
 
+  if (is.unit(border_radius)) border_radius <- convertWidth(border_radius, "bigpts", FALSE)
   if (!is_modifier(border_radius)) check_number_decimal(border_radius, allow_null = TRUE)
 
   check_character(bullets, allow_null = TRUE)
@@ -134,6 +150,8 @@ style <- function(family = NULL, weight = NULL, italic = NULL, width = NULL,
   check_bool(strikethrough, allow_null = TRUE)
 
   check_number_decimal(img_asp, allow_null = TRUE)
+
+  check_string(text_direction, allow_null = TRUE)
 
   if (!is_modifier(baseline)) check_number_decimal(baseline, allow_null = TRUE)
 
@@ -169,7 +187,8 @@ style <- function(family = NULL, weight = NULL, italic = NULL, width = NULL,
       underline = underline,
       strikethrough = strikethrough,
       baseline = baseline,
-      img_asp = img_asp
+      img_asp = img_asp,
+      text_direction = text_direction
     ),
     class = "marquee_style"
   )
@@ -207,17 +226,32 @@ str.marquee_style <- function(object, ...) {
   return(invisible(NULL))
 }
 
+#' @export
+`$<-.marquee_style` <- function(x, name, value) {
+  cli::cli_abort("Setting style values using {.arg $}, {.arg []}, or {.arg [[]]} are not permitted. Please use {.fun modify_style}")
+}
+
+#' @export
+`[[<-.marquee_style` <- function(x, ..., value) {
+  cli::cli_abort("Setting style values using {.arg $}, {.arg []}, or {.arg [[]]} are not permitted. Please use {.fun modify_style}")
+}
+
+#' @export
+`[<-.marquee_style` <- function(x, ..., value) {
+  cli::cli_abort("Setting style values using {.arg $}, {.arg []}, or {.arg [[]]} are not permitted. Please use {.fun modify_style}")
+}
+
 #' @rdname style
 #' @export
 base_style <- function(family = "", weight = "normal", italic = FALSE,
                        width = "normal", features = systemfonts::font_feature(),
                        size = 12, color = "black", lineheight = 1.6,
-                       align = "left", tracking = 0, indent = 0, hanging = 0,
+                       align = "auto", tracking = 0, indent = 0, hanging = 0,
                        margin = trbl(0, 0, rem(1)), padding = trbl(0),
                        background = NA, border = NA, border_size = trbl(0),
                        border_radius = 0, bullets = marquee_bullets,
                        underline = FALSE, strikethrough = FALSE, baseline = 0,
-                       img_asp = 1.65) {
+                       img_asp = 1.65, text_direction = "auto") {
   style(
     family = family,
     weight = weight,
@@ -241,6 +275,7 @@ base_style <- function(family = "", weight = "normal", italic = FALSE,
     underline = underline,
     strikethrough = strikethrough,
     baseline = baseline,
-    img_asp = img_asp
+    img_asp = img_asp,
+    text_direction = text_direction
   )
 }

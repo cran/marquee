@@ -8,7 +8,6 @@ knitr::opts_chunk$set(
   fig.align = "center",
   dpi = 300
 )
-should_eval <- getRversion() >= "4.3"
 has_gt_gtable <- "as_gtable" %in% getNamespaceExports("gt")
 
 ## ----setup--------------------------------------------------------------------
@@ -16,8 +15,8 @@ library(marquee)
 library(grid)
 library(ggplot2)
 
-## ----eval=should_eval---------------------------------------------------------
-md_text <- 
+## -----------------------------------------------------------------------------
+md_text <-
 "# Lorem Ipsum
 Lorem ipsum dolor sit amet, *consectetur* adipiscing elit, sed do eiusmod tempor incididunt ut
 labore et dolore magna **aliqua**. Ut enim ad minim veniam, quis nostrud exercitation ullamco
@@ -29,14 +28,14 @@ grob <- marquee_grob(md_text, classic_style())
 
 grid.draw(grob)
 
-## ----eval=should_eval---------------------------------------------------------
+## -----------------------------------------------------------------------------
 new_style <- classic_style(body_font = "serif", header_font = "mono", hanging = em(1))
 
 new_style <- modify_style(
-  new_style, 
-  "str", 
-  background = "lightgrey", 
-  border_radius = 3, 
+  new_style,
+  "str",
+  background = "lightgrey",
+  border_radius = 3,
   padding = trbl(em(0.2))
 )
 
@@ -44,8 +43,8 @@ grid.draw(
   marquee_grob(md_text, new_style)
 )
 
-## ----eval=should_eval---------------------------------------------------------
-md_text_custom <- 
+## -----------------------------------------------------------------------------
+md_text_custom <-
 "# Lorem Ipsum
 Lorem ipsum dolor {.red sit amet, *consectetur* adipiscing elit, sed do} eiusmod tempor
 incididunt ut labore et dolore magna **aliqua**. Ut enim ad minim {#2af veniam}, quis nostrud
@@ -58,12 +57,12 @@ grid.draw(
   marquee_grob(md_text_custom, classic_style())
 )
 
-## ----eval=should_eval---------------------------------------------------------
+## -----------------------------------------------------------------------------
 grid.draw(
   marquee_grob(md_text_custom, modify_style(classic_style(), "red", tracking = 400))
 )
 
-## ----eval=should_eval---------------------------------------------------------
+## -----------------------------------------------------------------------------
 fancy_font <- classic_style(
   weight = "semibold",
   features = systemfonts::font_feature(
@@ -71,17 +70,17 @@ fancy_font <- classic_style(
     letters = c("stylistic", "swash", "historical")
   )
 )
-ggplot(mtcars, aes(disp, mpg, label = rownames(mtcars))) + 
+ggplot(mtcars, aes(disp, mpg, label = rownames(mtcars))) +
   geom_marquee(style = fancy_font, size = 2.5, family = "spectral") # You may not have this font
 
-## ----eval=should_eval---------------------------------------------------------
+## -----------------------------------------------------------------------------
 cars <- sub("(\\w+)", "{.red ***\\1***}", rownames(mtcars))
 cars
 
-ggplot(mtcars) + aes(disp, mpg, label = cars) + 
+ggplot(mtcars) + aes(disp, mpg, label = cars) +
   geom_marquee()
 
-## ----eval=should_eval---------------------------------------------------------
+## -----------------------------------------------------------------------------
 text_box_style <- modify_style(
   classic_style(base_size = 2),
   "body",
@@ -89,34 +88,34 @@ text_box_style <- modify_style(
   border_radius = 3
 )
 
-ggplot(mtcars) + aes(disp, mpg, label = cars) + 
-  geom_marquee(size = 2) + 
-  annotate(GeomMarquee, 
-    label = md_text, 
-    x = 450, 
-    y = 35, 
-    style = text_box_style, 
-    size = 2, 
+ggplot(mtcars) + aes(disp, mpg, label = cars) +
+  geom_marquee(size = 2) +
+  annotate(GeomMarquee,
+    label = md_text,
+    x = 450,
+    y = 35,
+    style = text_box_style,
+    size = 2,
     fill = "lightgrey",
-    width = 0.3, 
+    width = 0.3,
     hjust = "right",
     vjust = "top"
   )
 
-## ----eval=should_eval---------------------------------------------------------
-ggplot(mtcars) + aes(disp, mpg, label = cars) + 
-  geom_marquee(size = 2) + 
-  ggtitle(md_text) + 
+## -----------------------------------------------------------------------------
+ggplot(mtcars) + aes(disp, mpg, label = cars) +
+  geom_marquee(size = 2) +
+  ggtitle(md_text) +
   theme(plot.title = element_marquee(size = 9))
 
-## ----fig.asp=0.8, eval=should_eval--------------------------------------------
-ggplot(mtcars) + aes(disp, mpg, label = cars) + 
-  geom_marquee(size = 2) + 
-  ggtitle(md_text) + 
+## ----fig.asp=0.8--------------------------------------------------------------
+ggplot(mtcars) + aes(disp, mpg, label = cars) +
+  geom_marquee(size = 2) +
+  ggtitle(md_text) +
   theme(plot.title = element_marquee(size = 9, width = 1))
 
-## ----eval=should_eval---------------------------------------------------------
-md_text_fig <- 
+## -----------------------------------------------------------------------------
+md_text_fig <-
 "# Lorem Ipsum ![](https://cran.r-project.org/Rlogo.svg)
 Lorem ipsum dolor {.red sit amet, *consectetur* adipiscing elit, sed do} eiusmod tempor
 incididunt ut labore et dolore magna **aliqua**. Ut enim ad minim {#2af veniam}, quis nostrud
@@ -127,9 +126,9 @@ laborum."
 
 grid.draw(marquee_grob(md_text_fig, classic_style()))
 
-## ----fig.asp=1.3, eval=should_eval--------------------------------------------
-md_text_fig2 <- 
-"# Lorem Ipsum 
+## ----fig.asp=1.3--------------------------------------------------------------
+md_text_fig2 <-
+"# Lorem Ipsum
 
 ![](https://cran.r-project.org/Rlogo.svg)
 
@@ -142,13 +141,13 @@ laborum."
 
 grid.draw(marquee_grob(md_text_fig2, classic_style()))
 
-## ----fig.asp=1.1, eval=should_eval--------------------------------------------
-p <- ggplot(mtcars) + 
+## ----fig.asp=1.1--------------------------------------------------------------
+p <- ggplot(mtcars) +
   geom_histogram(aes(x = gear))
 
 
-md_text_plot <- 
-"# Lorem Ipsum 
+md_text_plot <-
+"# Lorem Ipsum
 
 ![](p)
 
@@ -166,11 +165,11 @@ library(gt)
 airquality_m <- airquality[1:10, ]
 airquality_m$Year <- 1973L
 table <- gt(airquality_m)
-table <- tab_header(table, 
+table <- tab_header(table,
   title = "New York Air Quality Measurements",
   subtitle = "Daily measurements in New York City (May 1-10, 1973)"
 )
-table <- tab_spanner(table, 
+table <- tab_spanner(table,
   label = "Time",
   columns = c(Year, Month, Day)
 )
@@ -179,9 +178,9 @@ table <- tab_spanner(table,
   columns = c(Ozone, Solar.R, Wind, Temp)
 )
 
-## ----fig.asp=1.1, eval=should_eval--------------------------------------------
-md_text_table <- 
-"# Lorem Ipsum 
+## ----fig.asp=1.1--------------------------------------------------------------
+md_text_table <-
+"# Lorem Ipsum
 Below we have a table created with gt
 
 ![](table)

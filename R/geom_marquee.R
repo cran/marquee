@@ -30,7 +30,7 @@
 #'
 #' @export
 #'
-#' @examplesIf utils::packageVersion("base") > "4.3" && rlang::is_installed("ggplot2")
+#' @examplesIf rlang::is_installed("ggplot2")
 #'
 #' library(ggplot2)
 #' # Standard use
@@ -126,16 +126,18 @@ make_marquee_geom <- function() {
           !all(vapply(data$fill, function(x) is.character(x) || inherits(x, "GridPattern"), logical(1)))) {
         stop_input_type(data$fill, "a character vector or a list of strings and patters", arg = "fill")
       }
-      for (i in seq_along(styles)) {
-        styles[[i]]$base$family <- data$family[[i]]
-        styles[[i]]$base$size <- size[[i]]
-        styles[[i]]$base$lineheight <- data$lineheight[[i]]
-        styles[[i]]$base$color <- colour[[i]]
-        if (!"body" %in% names(styles[[i]])) {
-          styles[[i]]$body <- style()
-        }
-        styles[[i]]$body$background <- skip_inherit(data$fill[[i]])
-      }
+
+      styles <- modify_style(styles,
+        "base",
+        family = data$family,
+        size = size,
+        lineheight = data$lineheight,
+        color = colour
+      )
+      styles <- modify_style(styles,
+        "body",
+        background = skip_inherit(data$fill)
+      )
 
       data <- coord$transform(data, panel_params)
 
@@ -143,7 +145,7 @@ make_marquee_geom <- function() {
       data$hjust <- compute_just(data$hjust, data$x, data$y, data$angle)
 
       grob <- marquee_grob(
-        text = lab, style = styles,
+        text = lab, style = styles, force_body_margin = TRUE,
         x = data$x, y = data$y, width = data$width,
         hjust = data$hjust, vjust = data$vjust,
         angle = data$angle

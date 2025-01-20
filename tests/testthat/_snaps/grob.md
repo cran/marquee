@@ -22,12 +22,12 @@
       grob1$blocks
     Output
       $length
-       [1]  1  1 15  3  1  1  1  1  1  1  3  1  7  1  1  1  1  1  1  1  1  1  1  1  1
+       [1]  1  1 15  3  1  1  1  1  1  1  5  1  7  1  1  1  1  1  1  1  1  1  1  1  1
       [26]  1  1  1  1  1  1  5
       
       $start
-       [1]  1  2  3 18 21 22 23 24 25 26 27 30 31 38 39 40 41 42 43 44 45 46 47 48 49
-      [26] 50 51 52 53 54 55 56
+       [1]  1  2  3 18 21 22 23 24 25 26 27 32 33 40 41 42 43 44 45 46 47 48 49 50 51
+      [26] 52 53 54 55 56 57 58
       
       $indent
        [1] 1 2 2 2 2 3 3 4 4 3 2 2 2 2 2 3 4 3 4 4 5 6 6 7 8 8 6 7 3 4 2 2
@@ -42,10 +42,10 @@
       [1] "1." "2." "1." "2." "3." "•"  "1."
       
       $index
-      [1] 24 25 40 42 53 45 48
+      [1] 24 25 42 44 55 47 50
       
       $placement
-      [1] 24 25 41 43 54 46 49
+      [1] 24 25 43 45 56 48 51
       
       $shape
       $shape$shape
@@ -69,7 +69,7 @@
       #   descender <dbl>, col <chr>, id <int>
       
       $shape$metrics
-      # A tibble: 7 x 11
+      # A tibble: 7 x 12
         string width height left_bearing right_bearing top_bearing bottom_bearing
         <chr>  <dbl>  <dbl>        <dbl>         <dbl>       <dbl>          <dbl>
       1 1.     10.0      12        1.15          1.08        0.885           2.76
@@ -79,8 +79,8 @@
       5 3.     10.0      12        0.287         1.08        0.838           2.53
       6 •       4.20     12        0.874         0.739       3.65            2.76
       7 1.     10.0      12        1.15          1.08        0.885           2.76
-      # i 4 more variables: left_border <dbl>, top_border <dbl>, pen_x <dbl>,
-      #   pen_y <dbl>
+      # i 5 more variables: left_border <dbl>, top_border <dbl>, pen_x <dbl>,
+      #   pen_y <dbl>, ltr <lgl>
       
       
 

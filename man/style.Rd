@@ -28,7 +28,8 @@ style(
   underline = NULL,
   strikethrough = NULL,
   baseline = NULL,
-  img_asp = NULL
+  img_asp = NULL,
+  text_direction = NULL
 )
 
 base_style(
@@ -40,7 +41,7 @@ base_style(
   size = 12,
   color = "black",
   lineheight = 1.6,
-  align = "left",
+  align = "auto",
   tracking = 0,
   indent = 0,
   hanging = 0,
@@ -54,7 +55,8 @@ base_style(
   underline = FALSE,
   strikethrough = FALSE,
   baseline = 0,
-  img_asp = 1.65
+  img_asp = 1.65,
+  text_direction = "auto"
 )
 }
 \arguments{
@@ -104,9 +106,14 @@ parent hanging, \code{\link[=em]{em()}} in which case it is based on the font si
 style, or \code{\link[=rem]{rem()}} in which case it is based on the font size of the body
 element.}
 
-\item{margin}{The margin around the element, given as a call to \code{\link[=trbl]{trbl()}}}
+\item{margin}{The margin around the element, given as a call to \code{\link[=trbl]{trbl()}}.
+Margin refers to the area outside the box that text is placed in. If the
+element has a background, the margin area will not be colored.}
 
-\item{padding}{The padding around the element, given as a call to \code{\link[=trbl]{trbl()}}}
+\item{padding}{The padding around the element, given as a call to \code{\link[=trbl]{trbl()}}.
+Padding refers to the distance between the text and the border of the box it
+will be drawn in. If the element has a background, the padding area will be
+colored.}
 
 \item{background}{The color of the background fill. The background includes
 the padding but not the margin. Can be a solid color or a gradient or pattern
@@ -131,6 +138,14 @@ to \code{\link[=trbl]{trbl()}}}
 
 \item{img_asp}{The default aspect ratio for block level images if not
 provided by the image itself}
+
+\item{text_direction}{The directional flow of the text. Either \code{"auto"} to
+let it be determined by the content of the text, or \code{"ltr"}/\code{"rtl"} to
+hard-code it to either left-to-right or right-to-left. This setting will not
+change the order of glyphs within a span of text, but rather whether
+consequtive blocks of text are laid out left-to-right or right-to-left. It
+also affects to which side indentation is applied as well as the meaning of
+\code{"auto"}, and \code{"justified-auto"} aligment.}
 }
 \value{
 A \code{marquee_style} object
