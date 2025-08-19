@@ -55,6 +55,12 @@
 #' @param border_size The line width of the background stroke, given as a call
 #' to [trbl()]
 #' @param border_radius The corner radius of the background, given in points
+#' @param outline The color of the outline stroke.
+#' @param outline_width The line width of the outline stroke.
+#' @param outline_join The line join type for the outline. Either `"round"`,
+#' `"mitre"`, or `"bevel"`.
+#' @param outline_mitre The mitre limit (relative distance between inner and
+#' outer corner at a join) if `outline_join = "mitre"`.
 #' @param bullets A vector of strings to use for bullets in unordered lists.
 #' `marquee_bullets` provides a selection
 #' @param underline Should text be underlined
@@ -81,13 +87,36 @@
 #' # Full style
 #' base_style()
 #'
-style <- function(family = NULL, weight = NULL, italic = NULL, width = NULL,
-                  features = NULL, size = NULL, color = NULL, lineheight = NULL,
-                  align = NULL, tracking = NULL, indent = NULL, hanging = NULL,
-                  margin = NULL, padding = NULL, background = NULL, border = NULL,
-                  border_size = NULL, border_radius = NULL, bullets = NULL,
-                  underline = NULL, strikethrough = NULL, baseline = NULL,
-                  img_asp = NULL, text_direction = NULL) {
+style <- function(
+  family = NULL,
+  weight = NULL,
+  italic = NULL,
+  width = NULL,
+  features = NULL,
+  size = NULL,
+  color = NULL,
+  lineheight = NULL,
+  align = NULL,
+  tracking = NULL,
+  indent = NULL,
+  hanging = NULL,
+  margin = NULL,
+  padding = NULL,
+  background = NULL,
+  border = NULL,
+  border_size = NULL,
+  border_radius = NULL,
+  outline = NULL,
+  outline_width = NULL,
+  outline_join = NULL,
+  outline_mitre = NULL,
+  bullets = NULL,
+  underline = NULL,
+  strikethrough = NULL,
+  baseline = NULL,
+  img_asp = NULL,
+  text_direction = NULL
+) {
   check_string(family, allow_null = TRUE)
 
   if (is.character(weight)) weight <- systemfonts::as_font_weight(weight)
@@ -111,7 +140,8 @@ style <- function(family = NULL, weight = NULL, italic = NULL, width = NULL,
   check_string(color, allow_null = TRUE, allow_na = TRUE)
   if (!is.null(color) && is.na(color)) color[] <- NA_character_
 
-  if (!is_relative(lineheight)) check_number_decimal(lineheight, allow_null = TRUE)
+  if (!is_relative(lineheight))
+    check_number_decimal(lineheight, allow_null = TRUE)
 
   check_string(align, allow_null = TRUE)
 
@@ -124,10 +154,12 @@ style <- function(family = NULL, weight = NULL, italic = NULL, width = NULL,
   if (!is_modifier(hanging)) check_number_decimal(hanging, allow_null = TRUE)
 
   if (is.null(margin)) margin <- trbl()
-  if (!is_trbl(margin)) stop_input_type(margin, "a marquee_trbl object", allow_null = TRUE)
+  if (!is_trbl(margin))
+    stop_input_type(margin, "a marquee_trbl object", allow_null = TRUE)
 
   if (is.null(padding)) padding <- trbl()
-  if (!is_trbl(padding)) stop_input_type(padding, "a marquee_trbl object", allow_null = TRUE)
+  if (!is_trbl(padding))
+    stop_input_type(padding, "a marquee_trbl object", allow_null = TRUE)
 
   if (!inherits(background, "GridPattern")) {
     check_string(unclass(background), allow_null = TRUE, allow_na = TRUE)
@@ -138,10 +170,30 @@ style <- function(family = NULL, weight = NULL, italic = NULL, width = NULL,
   if (!is.null(border) && is.na(border)) border[] <- NA_character_
 
   if (is.null(border_size)) border_size <- trbl()
-  if (!is_trbl(border_size)) stop_input_type(border_size, "a marquee_trbl object", allow_null = TRUE)
+  if (!is_trbl(border_size))
+    stop_input_type(border_size, "a marquee_trbl object", allow_null = TRUE)
 
-  if (is.unit(border_radius)) border_radius <- convertWidth(border_radius, "bigpts", FALSE)
-  if (!is_modifier(border_radius)) check_number_decimal(border_radius, allow_null = TRUE)
+  if (is.unit(border_radius))
+    border_radius <- convertWidth(border_radius, "bigpts", FALSE)
+  if (!is_modifier(border_radius))
+    check_number_decimal(border_radius, allow_null = TRUE)
+
+  check_string(outline, allow_null = TRUE, allow_na = TRUE)
+  if (!is.null(outline) && is.na(outline)) outline[] <- NA_character_
+
+  if (is.unit(outline_width))
+    outline_width <- convertHeight(size, "bigpts", FALSE)
+
+  check_string(outline_join, allow_null = TRUE)
+  if (!is.null(outline_join))
+    outline_join <- arg_match0(outline_join, c("round", "mitre", "bevel"))
+
+  check_number_decimal(
+    outline_mitre,
+    allow_null = TRUE,
+    min = 1,
+    allow_infinite = FALSE
+  )
 
   check_character(bullets, allow_null = TRUE)
 
@@ -155,7 +207,8 @@ style <- function(family = NULL, weight = NULL, italic = NULL, width = NULL,
 
   if (!is_modifier(baseline)) check_number_decimal(baseline, allow_null = TRUE)
 
-  structure(list(
+  structure(
+    list(
       size = size, # Important this is the first. Required by compiled code
       background = background, # Important this is the second. Required by compiled code
       color = color, # Important this is the third. Required by compiled code
@@ -183,6 +236,10 @@ style <- function(family = NULL, weight = NULL, italic = NULL, width = NULL,
       border_size_bottom = border_size[[3]],
       border_size_left = border_size[[4]],
       border_radius = border_radius,
+      outline = outline,
+      outline_width = outline_width,
+      outline_join = outline_join,
+      outline_mitre = outline_mitre,
       bullets = bullets,
       underline = underline,
       strikethrough = strikethrough,
@@ -200,10 +257,22 @@ is_style <- function(x) inherits(x, "marquee_style")
 format.marquee_style <- function(x, ...) {
   defined_options <- x[!vapply(x, is.null, logical(1))]
   if (length(defined_options) == 0) return(character())
-  options <- format(names(defined_options), width = max(nchar(names(defined_options))), justify = "right")
-  paste0(options, ": ", vapply(defined_options, function(opt) {
-    paste(format(opt, ...), collapse = ", ")
-  }, character(1)))
+  options <- format(
+    names(defined_options),
+    width = max(nchar(names(defined_options))),
+    justify = "right"
+  )
+  paste0(
+    options,
+    ": ",
+    vapply(
+      defined_options,
+      function(opt) {
+        paste(format(opt, ...), collapse = ", ")
+      },
+      character(1)
+    )
+  )
 }
 #' @export
 print.marquee_style <- function(x, ...) {
@@ -228,30 +297,57 @@ str.marquee_style <- function(object, ...) {
 
 #' @export
 `$<-.marquee_style` <- function(x, name, value) {
-  cli::cli_abort("Setting style values using {.arg $}, {.arg []}, or {.arg [[]]} are not permitted. Please use {.fun modify_style}")
+  cli::cli_abort(
+    "Setting style values using {.arg $}, {.arg []}, or {.arg [[]]} are not permitted. Please use {.fun modify_style}"
+  )
 }
 
 #' @export
 `[[<-.marquee_style` <- function(x, ..., value) {
-  cli::cli_abort("Setting style values using {.arg $}, {.arg []}, or {.arg [[]]} are not permitted. Please use {.fun modify_style}")
+  cli::cli_abort(
+    "Setting style values using {.arg $}, {.arg []}, or {.arg [[]]} are not permitted. Please use {.fun modify_style}"
+  )
 }
 
 #' @export
 `[<-.marquee_style` <- function(x, ..., value) {
-  cli::cli_abort("Setting style values using {.arg $}, {.arg []}, or {.arg [[]]} are not permitted. Please use {.fun modify_style}")
+  cli::cli_abort(
+    "Setting style values using {.arg $}, {.arg []}, or {.arg [[]]} are not permitted. Please use {.fun modify_style}"
+  )
 }
 
 #' @rdname style
 #' @export
-base_style <- function(family = "", weight = "normal", italic = FALSE,
-                       width = "normal", features = systemfonts::font_feature(),
-                       size = 12, color = "black", lineheight = 1.6,
-                       align = "auto", tracking = 0, indent = 0, hanging = 0,
-                       margin = trbl(0, 0, rem(1)), padding = trbl(0),
-                       background = NA, border = NA, border_size = trbl(0),
-                       border_radius = 0, bullets = marquee_bullets,
-                       underline = FALSE, strikethrough = FALSE, baseline = 0,
-                       img_asp = 1.65, text_direction = "auto") {
+base_style <- function(
+  family = "",
+  weight = "normal",
+  italic = FALSE,
+  width = "normal",
+  features = systemfonts::font_feature(),
+  size = 12,
+  color = "black",
+  lineheight = 1.6,
+  align = "auto",
+  tracking = 0,
+  indent = 0,
+  hanging = 0,
+  margin = trbl(0, 0, rem(1)),
+  padding = trbl(0),
+  background = NA,
+  border = NA,
+  border_size = trbl(0),
+  border_radius = 0,
+  outline = NA,
+  outline_width = 1,
+  outline_join = "round",
+  outline_mitre = 10,
+  bullets = marquee_bullets,
+  underline = FALSE,
+  strikethrough = FALSE,
+  baseline = 0,
+  img_asp = 1.65,
+  text_direction = "auto"
+) {
   style(
     family = family,
     weight = weight,
@@ -271,6 +367,10 @@ base_style <- function(family = "", weight = "normal", italic = FALSE,
     border = border,
     border_size = border_size,
     border_radius = border_radius,
+    outline = outline,
+    outline_width = outline_width,
+    outline_join = outline_join,
+    outline_mitre = outline_mitre,
     bullets = bullets,
     underline = underline,
     strikethrough = strikethrough,

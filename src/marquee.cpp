@@ -173,6 +173,10 @@ inline cpp11::writable::list combine_styles(cpp11::list parent, cpp11::list def)
   return new_style;
 }
 
+inline bool is_size(std::string& name) {
+  return name.find_first_not_of("0123456789", 0) == std::string::npos;
+}
+
 inline void push_info(MARQUEE_DATA* userdata, std::string type, bool block = false, bool tight = false, int offset = 1) {
   userdata->type_stack.push(type);
   userdata->index_stack.push_back(userdata->until.size());
@@ -184,6 +188,8 @@ inline void push_info(MARQUEE_DATA* userdata, std::string type, bool block = fal
     cpp11::writable::list last_style = userdata->style_stack.top();
     if (is_color(type)) {
       last_style[2] = cpp11::writable::strings({type});
+    } else if (is_size(type)) {
+      last_style[0] = cpp11::writable::doubles({double(std::stoi(type))});
     }
     userdata->style_stack.push(last_style);
   } else if (userdata->style_stack.empty()) {
@@ -498,8 +504,10 @@ cpp11::writable::list place_bullets(cpp11::strings type, cpp11::integers indent,
     // Count the number of consecutive ul nestings
     int n_ind = 0;
     for (R_xlen_t k = stretch_start.size() - 1; k >= 0; --k) {
-      if (i > stretch_end[k] || stretch_type[k] == "ol") break;
-      n_ind++;
+      if (i >= stretch_start[k] && i <= stretch_end[k]) {
+        if (stretch_type[k] == "ol") break;
+        n_ind++;
+      }
     }
     cpp11::r_string ul_bullet = bullets[i][n_ind % bullets[i].size()];
 
@@ -529,7 +537,7 @@ cpp11::writable::list place_bullets(cpp11::strings type, cpp11::integers indent,
         }
         placement.push_back(j + 1);
         // Move j to the start of the next block
-        while (j < block.size() - 2 && li_block == block[j + 1]) j++;
+        while (j < block.size() - 1 && li_block == block[j + 1]) j++;
       }
     }
     stretch_end.push_back(end);

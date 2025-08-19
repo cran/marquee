@@ -1,4 +1,4 @@
-## ----include = FALSE----------------------------------------------------------
+## -----------------------------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
 )
 has_gt_gtable <- "as_gtable" %in% getNamespaceExports("gt")
 
-## ----setup--------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(marquee)
 library(grid)
 library(ggplot2)
@@ -108,7 +108,7 @@ ggplot(mtcars) + aes(disp, mpg, label = cars) +
   ggtitle(md_text) +
   theme(plot.title = element_marquee(size = 9))
 
-## ----fig.asp=0.8--------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ggplot(mtcars) + aes(disp, mpg, label = cars) +
   geom_marquee(size = 2) +
   ggtitle(md_text) +
@@ -126,7 +126,7 @@ laborum."
 
 grid.draw(marquee_grob(md_text_fig, classic_style()))
 
-## ----fig.asp=1.3--------------------------------------------------------------
+## -----------------------------------------------------------------------------
 md_text_fig2 <-
 "# Lorem Ipsum
 
@@ -141,7 +141,7 @@ laborum."
 
 grid.draw(marquee_grob(md_text_fig2, classic_style()))
 
-## ----fig.asp=1.1--------------------------------------------------------------
+## -----------------------------------------------------------------------------
 p <- ggplot(mtcars) +
   geom_histogram(aes(x = gear))
 
@@ -160,7 +160,7 @@ laborum."
 
 grid.draw(marquee_grob(md_text_plot, classic_style()))
 
-## ----collapse=TRUE------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(gt)
 airquality_m <- airquality[1:10, ]
 airquality_m$Year <- 1973L
@@ -178,7 +178,7 @@ table <- tab_spanner(table,
   columns = c(Ozone, Solar.R, Wind, Temp)
 )
 
-## ----fig.asp=1.1--------------------------------------------------------------
+## -----------------------------------------------------------------------------
 md_text_table <-
 "# Lorem Ipsum
 Below we have a table created with gt
