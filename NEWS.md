@@ -1,3 +1,13 @@
+# marquee 1.1.1
+
+* Fixed a bug in `element_marquee()` that resulted in wrong width calculation
+  for rotated text (#69)
+* If image URLs doesn't indicate image format marquee will attempt to sniff it
+* Fixes an S7 compatibility issue with merge_element (#83)
+* marquee should no longer open a graphics device if none exists (#75)
+* `element_marquee()` now works with factor input and will fall back to
+  `element_text()` for expressions (#71)
+
 # marquee 1.1.0
 
 * Size of `element_marquee()` is communicated similar to `element_text()` (#57)
