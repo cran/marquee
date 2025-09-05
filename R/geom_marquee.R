@@ -59,7 +59,7 @@
 #'   "body",
 #'   padding = skip_inherit(trbl(4)),
 #'   border = "black",
-#'   border_size = skip_inherit(trbl(1)),
+#'   border_width = skip_inherit(trbl(1)),
 #'   border_radius = 3
 #' )
 #' p + geom_marquee(aes(label = rownames(mtcars), fill = gear), style = label_style)
@@ -175,18 +175,13 @@ make_marquee_geom <- function() {
         )
       }
 
-      styles <- modify_style(
+      styles <- combine_styles(
         styles,
-        "base",
         family = data$family,
         size = size,
         lineheight = data$lineheight,
-        color = colour
-      )
-      styles <- modify_style(
-        styles,
-        "body",
-        background = skip_inherit(data$fill)
+        color = colour,
+        background = data$fill
       )
 
       data <- coord$transform(data, panel_params)

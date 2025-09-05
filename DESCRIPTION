@@ -1,6 +1,6 @@
 Package: marquee
 Title: Markdown Parser and Renderer for R Graphics
-Version: 1.1.1
+Version: 1.2.0
 Authors@R: c(
     person("Thomas Lin", "Pedersen", , "thomas.pedersen@posit.co", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5147-4711")),
@@ -15,8 +15,9 @@ License: MIT + file LICENSE
 URL: https://marquee.r-lib.org, https://github.com/r-lib/marquee
 BugReports: https://github.com/r-lib/marquee/issues
 Depends: R (>= 4.1)
-Imports: cli, glue, grDevices, grid, jpeg, png, rlang (>= 1.1.0), S7,
-        systemfonts (>= 1.2.0), textshaping (>= 1.0.0), utils, vctrs
+Imports: cli, glue, grDevices, grid, jpeg, lifecycle, png, rlang (>=
+        1.1.0), S7, systemfonts (>= 1.2.0), textshaping (>= 1.0.0),
+        utils, vctrs
 Suggests: ggplot2, gt, gtable, knitr, patchwork, ragg, rmarkdown, rsvg,
         testthat (>= 3.0.0)
 LinkingTo: cpp11
@@ -28,11 +29,11 @@ Config/usethis/last-upkeep: 2025-04-23
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 NeedsCompilation: yes
-Packaged: 2025-08-27 13:29:45 UTC; thomas
+Packaged: 2025-09-05 19:51:59 UTC; thomas
 Author: Thomas Lin Pedersen [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-5147-4711>),
   Martin Mitáš [aut] (Author of MD4C),
   Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)
 Maintainer: Thomas Lin Pedersen <thomas.pedersen@posit.co>
 Repository: CRAN
-Date/Publication: 2025-08-27 13:50:08 UTC
+Date/Publication: 2025-09-05 20:10:02 UTC

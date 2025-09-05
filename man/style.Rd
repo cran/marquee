@@ -22,10 +22,12 @@ style(
   padding = NULL,
   background = NULL,
   border = NULL,
-  border_size = NULL,
+  border_width = NULL,
+  border_type = NULL,
   border_radius = NULL,
   outline = NULL,
   outline_width = NULL,
+  outline_type = NULL,
   outline_join = NULL,
   outline_mitre = NULL,
   bullets = NULL,
@@ -33,7 +35,8 @@ style(
   strikethrough = NULL,
   baseline = NULL,
   img_asp = NULL,
-  text_direction = NULL
+  text_direction = NULL,
+  border_size = deprecated()
 )
 
 base_style(
@@ -53,10 +56,12 @@ base_style(
   padding = trbl(0),
   background = NA,
   border = NA,
-  border_size = trbl(0),
+  border_width = trbl(0),
+  border_type = "solid",
   border_radius = 0,
   outline = NA,
   outline_width = 1,
+  outline_type = "solid",
   outline_join = "round",
   outline_mitre = 10,
   bullets = marquee_bullets,
@@ -64,7 +69,8 @@ base_style(
   strikethrough = FALSE,
   baseline = 0,
   img_asp = 1.65,
-  text_direction = "auto"
+  text_direction = "auto",
+  border_size = deprecated()
 )
 }
 \arguments{
@@ -130,14 +136,22 @@ made with \code{grid::linearGradient()}/\code{grid::radialGradient()}/\code{grid
 \item{border}{The color of the background stroke. The background includes
 the padding but not the margin}
 
-\item{border_size}{The line width of the background stroke, given as a call
+\item{border_width}{The line width of the background stroke, given as a call
 to \code{\link[=trbl]{trbl()}}}
+
+\item{border_type}{The linetype of the background stroke, given as an an
+\code{lty} compatible value (See the \emph{Line Type Specification} section in
+\link[graphics:par]{par})}
 
 \item{border_radius}{The corner radius of the background, given in points}
 
 \item{outline}{The color of the outline stroke.}
 
 \item{outline_width}{The line width of the outline stroke.}
+
+\item{outline_type}{The linetype of the outline stroke, given as an an
+\code{lty} compatible value (See the \emph{Line Type Specification} section in
+\link[graphics:par]{par})}
 
 \item{outline_join}{The line join type for the outline. Either \code{"round"},
 \code{"mitre"}, or \code{"bevel"}.}
@@ -164,6 +178,9 @@ change the order of glyphs within a span of text, but rather whether
 consequtive blocks of text are laid out left-to-right or right-to-left. It
 also affects to which side indentation is applied as well as the meaning of
 \code{"auto"}, and \code{"justified-auto"} aligment.}
+
+\item{border_size}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{border_width}
+instead}
 }
 \value{
 A \code{marquee_style} object

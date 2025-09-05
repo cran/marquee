@@ -80,9 +80,10 @@
 #'
 #' **Underline and strikethrough**
 #'
-#' Underlines are placed 0.1em below the baseline of the text. Strikethrough are
-#' placed 0.3em above the baseline. The width of the line is set to 0.075em. It
-#' inherits the color of the text. No further styling is possible.
+#' Underlines are placed according to the font specification. Strikethrough are
+#' placed 0.3em above the baseline. The width of the line is set according to
+#' the fonr specification for underline width, both for underline and
+#' strikethrough. It inherits the color of the text.
 #'
 #' **Spans with background**
 #'
@@ -262,8 +263,8 @@ marquee_grob <- function(
     function(x) !(is.character(x) && is.na(x[1])),
     logical(1)
   )
-  has_top <- !is.na(parsed$border) & parsed$border_size_top != 0
-  has_bottom <- !is.na(parsed$border) & parsed$border_size_bottom != 0
+  has_top <- !is.na(parsed$border) & parsed$border_width_top != 0
+  has_bottom <- !is.na(parsed$border) & parsed$border_width_bottom != 0
   for (root in blocks$start[blocks$indent == 1]) {
     block_tree <- collect_children(
       root,
@@ -868,10 +869,10 @@ makeContext.marquee_grob <- function(x) {
     logical(1)
   ) |
     (!is.na(x$text$border) &
-      (x$text$border_size_bottom > 0 |
-        x$text$border_size_top > 0 |
-        x$text$border_size_left > 0 |
-        x$text$border_size_right > 0))
+      (x$text$border_width_bottom > 0 |
+        x$text$border_width_top > 0 |
+        x$text$border_width_left > 0 |
+        x$text$border_width_right > 0))
 
   ## Handle block backgrounds
   block_bg <- has_deco[x$blocks$start]
@@ -886,10 +887,11 @@ makeContext.marquee_grob <- function(x) {
     fill = x$text$background[x$blocks$start[block_bg]],
     col = x$text$border[x$blocks$start[block_bg]],
     r = x$text$border_radius[x$blocks$start[block_bg]],
-    left = x$text$border_size_left[x$blocks$start[block_bg]],
-    right = x$text$border_size_right[x$blocks$start[block_bg]],
-    top = x$text$border_size_top[x$blocks$start[block_bg]],
-    bottom = x$text$border_size_bottom[x$blocks$start[block_bg]]
+    left = x$text$border_width_left[x$blocks$start[block_bg]],
+    right = x$text$border_width_right[x$blocks$start[block_bg]],
+    top = x$text$border_width_top[x$blocks$start[block_bg]],
+    bottom = x$text$border_width_bottom[x$blocks$start[block_bg]],
+    lty = x$text$border_type[x$blocks$start[block_bg]]
   )
 
   ## Handle span backgrounds
@@ -946,10 +948,11 @@ makeContext.marquee_grob <- function(x) {
     fill = c(block_rects$fill, x$text$background[span_rects[, 1]]),
     col = c(block_rects$col, x$text$border[span_rects[, 1]]),
     r = c(block_rects$r, x$text$border_radius[span_rects[, 1]]),
-    left = c(block_rects$left, x$text$border_size_left[span_rects[, 1]]),
-    right = c(block_rects$right, x$text$border_size_right[span_rects[, 1]]),
-    top = c(block_rects$top, x$text$border_size_top[span_rects[, 1]]),
-    bottom = c(block_rects$bottom, x$text$border_size_bottom[span_rects[, 1]])
+    left = c(block_rects$left, x$text$border_width_left[span_rects[, 1]]),
+    right = c(block_rects$right, x$text$border_width_right[span_rects[, 1]]),
+    top = c(block_rects$top, x$text$border_width_top[span_rects[, 1]]),
+    bottom = c(block_rects$bottom, x$text$border_width_bottom[span_rects[, 1]]),
+    lty = c(block_rects$lty, x$text$border_type[span_rects[, 1]])
   )
 
   ## Extract position of underline and strikethrough
@@ -959,14 +962,20 @@ makeContext.marquee_grob <- function(x) {
     lapply(split(span_ind, x$shape$y_offset[span_ind]), function(j) {
       ### Line width and position is relative to size
       size <- x$shape$font_size[j[1]]
-      mod <- c(-0.1, 0.3)[c(x$text$underline[i], x$text$strikethrough[i])] *
-        size
+      info <- systemfonts::font_info(
+        path = x$shape$font_path[j[1]],
+        index = x$shape$font_index[j[1]],
+        size = size,
+        res = 600
+      )
+      mod <- c(info$underline_pos * 72 / 600, 0.3 * size)
+      mod <- mod[c(x$text$underline[i], x$text$strikethrough[i])]
       l <- c(
         i,
         min(x$shape$x_offset[j]),
         max(x$shape$x_offset[j] + x$shape$advance[j]),
         x$shape$y_offset[j[1]],
-        size * 0.075
+        info$underline_size * 72 / 600
       )
       if (length(mod) == 2) {
         l <- rbind(l, l)
@@ -1154,7 +1163,8 @@ makeContent.marquee_grob <- function(x) {
           gp = gpar(
             fill = x$rects$fill[[i]],
             col = if (single_stroke) x$rects$col[i] else NA,
-            lwd = x$rects$left[i] * 2 #### We double it as we clip the outer part away
+            lwd = x$rects$left[i] * 2, #### We double it as we clip the outer part away
+            lty = x$rects$lty[i]
           )
         )
       } else {
@@ -1168,7 +1178,8 @@ makeContent.marquee_grob <- function(x) {
           gp = gpar(
             fill = x$rects$fill[[i]],
             col = if (single_stroke) x$rects$col[i] else NA,
-            lwd = x$rects$left[i] * 2
+            lwd = x$rects$left[i] * 2,
+            lty = x$rects$lty[i]
           )
         )
       }
@@ -1192,7 +1203,8 @@ makeContent.marquee_grob <- function(x) {
               gp = gpar(
                 col = x$rects$col[i],
                 lwd = x$rects$left[i] * 2,
-                lineend = "square"
+                lineend = "square",
+                lty = x$rects$lty[i]
               )
             ))
           )
@@ -1208,7 +1220,8 @@ makeContent.marquee_grob <- function(x) {
               gp = gpar(
                 col = x$rects$col[i],
                 lwd = x$rects$right[i] * 2,
-                lineend = "square"
+                lineend = "square",
+                lty = x$rects$lty[i]
               )
             ))
           )
@@ -1224,7 +1237,8 @@ makeContent.marquee_grob <- function(x) {
               gp = gpar(
                 col = x$rects$col[i],
                 lwd = x$rects$top[i] * 2,
-                lineend = "square"
+                lineend = "square",
+                lty = x$rects$lty[i]
               )
             ))
           )
@@ -1240,7 +1254,8 @@ makeContent.marquee_grob <- function(x) {
               gp = gpar(
                 col = x$rects$col[i],
                 lwd = x$rects$bottom[i] * 2,
-                lineend = "square"
+                lineend = "square",
+                lty = x$rects$lty[i]
               )
             ))
           )
@@ -1384,12 +1399,15 @@ has_identical_background <- function(a, b, style) {
         identical(style$border[a], style$border[b]) &&
         (is.na(style$border[a]) ||
           (identical(
-            style$border_size_bottom[a],
-            style$border_size_bottom[b]
+            style$border_width_bottom[a],
+            style$border_width_bottom[b]
           ) &&
-            identical(style$border_size_top[a], style$border_size_top[b]) &&
-            identical(style$border_size_left[a], style$border_size_left[b]) &&
-            identical(style$border_size_right[a], style$border_size_right[b])))
+            identical(style$border_width_top[a], style$border_width_top[b]) &&
+            identical(style$border_width_left[a], style$border_width_left[b]) &&
+            identical(
+              style$border_width_right[a],
+              style$border_width_right[b]
+            )))
     },
     a = a,
     b = b
@@ -1441,6 +1459,7 @@ outline_glyphs <- function(glyph_info, shape) {
   id <- vctrs::vec_group_loc(shape[, c(
     "outline",
     "outline_width",
+    "outline_type",
     "outline_join",
     "outline_mitre"
   )])
@@ -1451,6 +1470,7 @@ outline_glyphs <- function(glyph_info, shape) {
     outline$glyphs <- outline$glyphs[id$loc[[idx]], , drop = FALSE]
     outline_gp <- gpar(
       lwd = id$key$outline_width[idx] * 2,
+      lty = id$key$outline_type[idx],
       col = id$key$outline[idx],
       linejoin = id$key$outline_join[idx],
       linemitre = id$key$outline_mitre[idx]
